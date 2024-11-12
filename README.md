@@ -1,4 +1,4 @@
-(open mp)
-gedit akhpc1.cpp 
-g++ -fopenmp akhpc1.cpp
+(open mp)<br>
+gedit akhpc1.cpp <br>
+g++ -fopenmp akhpc1.cpp<br>
 ./a.out
