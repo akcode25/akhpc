@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
-    srand(static_cast<unsigned>(time(0)) + world_rank); //srand(world_rank); //or, srand((unsigned int)time(0) + world_rank);
+    srand(static_cast<unsigned>(time(0)) + world_rank); //or, srand((unsigned int)time(0) + world_rank);
     int mangoes_picked = rand() % 101;  
     cout << "Robot " << world_rank << " picked " << mangoes_picked << " mangoes." << endl;
 
