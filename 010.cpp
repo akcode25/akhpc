@@ -2,6 +2,7 @@
 #include <vector>
 #include <omp.h>  // OpenMP
 #include <ctime> 
+using namespace std;
 
 void multiply(const vector<vector<int>>& A, const vector<vector<int>>& B, vector<vector<int>>& C, int N, bool parallel) {
     #pragma omp parallel for collapse(2) if(parallel)  // Parallelize if "parallel" is true
