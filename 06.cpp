@@ -25,6 +25,10 @@ int main(int argc, char** argv) {
 }
 
 /*
+gedit ak6.cpp
+mpic++ ak6.cpp
+mpirun -np 5 ./a.out
+
 Robot 2 picked 25 mangoes.
 Robot 4 picked 6 mangoes.
 Robot 0 picked 15 mangoes.
