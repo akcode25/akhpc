@@ -1,5 +1,4 @@
-/* 10. Multiply two square matrices (1000,2000 or 3000 dimensions). Compare 
-the performance of a sequential and parallel algorithm using open MP.*/
+/*10. */
 
 #include <iostream>
 #include <vector>
@@ -24,12 +23,12 @@ int main() {
     vector<vector<int>> A(N, vector<int>(N, 1)), B(N, vector<int>(N, 1)), C(N, vector<int>(N, 0));
 
     clock_t start = clock();
-    multiply(A, B, C, N, false);  // Sequential multiplication
+    multiply(A, B, C, N, false);  
     clock_t end = clock();
     cout << "Time taken for sequential multiplication: " << double(end - start) / CLOCKS_PER_SEC << " seconds" << endl;
 
     start = clock();
-    multiply(A, B, C, N, true);   // Parallel multiplication
+    multiply(A, B, C, N, true);  
     end = clock();
     cout << "Time taken for parallel multiplication (OpenMP): " << double(end - start) / CLOCKS_PER_SEC << " seconds" << endl;
 
@@ -46,10 +45,7 @@ Time taken for sequential multiplication: 6.82819 seconds
 Time taken for parallel multiplication (OpenMP): 0.62969 seconds
 */
 
-_________________________________________________________________________________________
-
-/*6. Assume you have n robots which pick mangoes in a farm. 
-WAPT calculate the total number of mangoes picked by n robots parallely using MPI.*/
+/*6. */
 
 #include <iostream>
 #include <mpi.h>
@@ -58,14 +54,13 @@ WAPT calculate the total number of mangoes picked by n robots parallely using MP
 using namespace std;
 
 int main(int argc, char** argv) {
-    MPI_Init(&argc, &argv);			// Initialize MPI environment
-    int world_size, world_rank;     // Get number of processes and rank of current process
+    MPI_Init(&argc, &argv);			
+    int world_size, world_rank;    
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
-    // Initialize random seed and generate random number of mangoes
-    srand(static_cast<unsigned>(time(0)) + world_rank); //ensures each process generates a different random no.
-    int mangoes_picked = rand() % 101;  //[0, 100] rand no. => no. of mangoes picked by the robot
+    srand(static_cast<unsigned>(time(0)) + world_rank); 
+    int mangoes_picked = rand() % 101;  //[0, 100] 
     cout << "Robot " << world_rank << " picked " << mangoes_picked << " mangoes." << endl;
 
     int total_mangoes = 0;
@@ -90,10 +85,7 @@ Robot 3 picked 49 mangoes.
 Total mangoes picked by all robots: 124
 */
 
-_________________________________________________________________________________________
-
-
-/*7. Design a program that implements application of MPI Collective Communications.*/
+/*7. */
 
 #include <iostream>
 #include <mpi.h>
@@ -106,8 +98,8 @@ int main(int argc, char** argv) {
 	MPI_Init(&argc, &argv);
 
 	int world_size, world_rank;
-	MPI_Comm_size(MPI_COMM_WORLD, &world_size);  // Determines total no. of processes in communicator MPI_COMM_WORLD, Stores this value in world_size.
-	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);  // Determines the rank (ID) of current process in the communicator, Stores this value in world_rank.
+	MPI_Comm_size(MPI_COMM_WORLD, &world_size);  // total no. of processes in communicator MPI_COMM_WORLD
+	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);  // rank (ID) of current process in the communicator
 
 	int n = 10;
 	vector<int> local_array(n);
@@ -155,10 +147,7 @@ Total sum: 2541
 Average: 50.82
 */
 
-_________________________________________________________________________________________
-
-
-// 8. Implement Cartesian Virtual Topology in MPI.
+/* 8. */
 
 #include <iostream>
 #include <mpi.h>
@@ -207,11 +196,7 @@ Process 2 at (1, 0) has value: 2
 Process 3 at (1, 1) has value: 3
 */
 
-_________________________________________________________________________________________
-
-
-/*9. Design a MPI program that uses blocking send/receive 
-routines and non blocking send/receive routines.*/
+/*9. */
 
 #include <iostream>
 #include <mpi.h>
@@ -284,9 +269,6 @@ Process 1 non-blocking receive initiated.
 Process 1 non-blocking receive completed: 0 0 0 0 0 0 0 0 0 0 
 */
 
-
-_________________________________________________________________________________________
-
 // 8th compact
 
 #include<iostream>
@@ -323,7 +305,6 @@ int main(int argc, char** argv){
 // mpic++ ak8.cpp
 // mpirun -np 4 ./a.out
 
-_________________________________________________________________________________________
 
 //9th compact
 
