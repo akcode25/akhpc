@@ -1,3 +1,352 @@
+g++ -fopenmp prog.cpp
+
+/*1. */
+
+#include <iostream>
+#include <omp.h>
+#include <vector>
+using namespace std;
+
+int main() {
+	int n;
+	cout << "Enter matrix size: ";
+	cin >> n;
+	vector<vector<int>> A(n, vector<int>(n));
+	vector<int> x(n), y_serial(n, 0), y_parallel(n, 0);
+
+	cout << "Enter matrix A :\n";
+	for (auto &row : A) for (int &a : row) cin >> a;
+	cout << "Enter vector x: \n";
+	for (int &xi : x) cin >> xi;
+
+	double start_serial = omp_get_wtime();
+	for (int i = 0; i < n; i++)
+    	    for (int j = 0; j < n; j++)
+        	y_serial[i] += A[i][j] * x[j];
+	double end_serial = omp_get_wtime();
+
+	double start_parallel = omp_get_wtime();
+	#pragma omp parallel for
+	for (int i = 0; i < n; i++)
+    	    for (int j = 0; j < n; j++)
+        	y_parallel[i] += A[i][j] * x[j];
+	double end_parallel = omp_get_wtime();
+
+	cout << "Serial Result y = ";
+	for (int yi : y_serial) cout << yi << " ";
+	cout << "\nSerial Time: " << end_serial - start_serial << " seconds\n";
+
+	cout << "Parallel Result y = ";
+	for (int yi : y_parallel) cout << yi << " ";
+	cout << "\nParallel Time: " << end_parallel - start_parallel << " seconds\n";
+    
+	return 0;
+}
+
+/*
+Enter matrix size: 3
+Enter matrix A :
+1 2 3
+4 5 6
+7 8 9
+Enter vector x:
+1 2 3
+
+Serial Result y = 14 32 50
+Serial Time: 9.91e-07 seconds
+Parallel Result y = 14 32 50
+Parallel Time: 0.00141599 seconds
+*/
+
+/*2. */
+
+#include <iostream>
+#include <vector>
+#include <omp.h>
+using namespace std;
+
+int main() {
+	vector<string> sections = {"Clothing", "Gaming", "Grocery", "Stationery"};
+	vector<int> prices_parallel(sections.size(), 0), prices_serial(sections.size(), 0);
+
+	// Serial execution
+	cout<<"Serial execution: \n";
+	double start_serial = omp_get_wtime();
+	for (int i = 0; i < sections.size(); ++i) {
+    	int num_items, total = 0;
+    	cout << "Enter items & prices for " << sections[i] << " (Serial):\n";
+    	cin >> num_items;
+    	for (int j = 0; j < num_items; ++j) {
+        	int price;
+        	cin >> price;
+        	total += price;
+    	}
+    	prices_serial[i] = total;
+	}
+	double end_serial = omp_get_wtime();
+
+	// Parallel execution
+	cout<<"\nParallel execution:\n";
+	double start_parallel = omp_get_wtime();
+	for (int i = 0; i < sections.size(); ++i) {
+    	int num_items, total = 0;
+    	cout << "Enter items & prices for " << sections[i] << " (Parallel):\n";
+    	cin >> num_items;
+
+    	#pragma omp parallel for reduction(+:total)
+    	for (int j = 0; j < num_items; ++j) {
+        	int price;
+        	cin >> price;
+        	total += price;
+    	}
+    	prices_parallel[i] = total;
+	}
+	double end_parallel = omp_get_wtime();
+
+	// Final summary
+	cout << "\nSerial Prices:\n";
+	int overall_serial = 0;
+	for (int i = 0; i < sections.size(); ++i) {
+    	cout << sections[i] << ": " << prices_serial[i] << "\n";
+    	overall_serial += prices_serial[i];
+	}
+	cout << "Overall Cost (Serial): " << overall_serial << "\n";
+	cout << "Serial Time: " << end_serial - start_serial << " seconds\n";
+
+	cout << "\nParallel Prices:\n";
+	int overall_parallel = 0;
+	for (int i = 0; i < sections.size(); ++i) {
+    	cout << sections[i] << ": " << prices_parallel[i] << "\n";
+    	overall_parallel += prices_parallel[i];
+	}
+	cout << "Overall Cost (Parallel): " << overall_parallel << "\n";
+	cout << "Parallel Time: " << end_parallel - start_parallel << " seconds\n";
+
+	return 0;
+}
+
+
+/*
+Serial execution:
+Enter items & prices for Clothing (Serial):
+3
+500 600 700
+Enter items & prices for Gaming (Serial):
+2
+1500 2500
+Enter items & prices for Grocery (Serial):
+4
+100 200 300 400
+Enter items & prices for Stationery (Serial):
+3
+50 60 70
+
+Parallel execution:
+Enter items & prices for Clothing (Parallel):
+3
+500 600 700
+Enter items & prices for Gaming (Parallel):
+2
+1500 2500
+Enter items & prices for Grocery (Parallel):
+4
+100 200 300 400
+Enter items & prices for Stationery (Parallel):
+3
+50 60 70
+
+Serial Prices:
+Clothing: 1800
+Gaming: 4000
+Grocery: 1000
+Stationery: 180
+Overall Cost (Serial): 6980
+Serial Time: 19.3207 seconds
+
+Parallel Prices:
+Clothing: 1800
+Gaming: 4000
+Grocery: 820
+Stationery: 180
+Overall Cost (Parallel): 6800
+Parallel Time: 19.8164 seconds
+*/
+
+/*3. */
+
+#include <iostream>
+#include <omp.h>
+using namespace std;
+
+int main() {
+	long long steps = 1000000000;  //10^9
+	double step = 1.0 / steps, pi_serial = 0.0, pi_parallel = 0.0;
+
+	// Serial execution
+	double start_serial = omp_get_wtime();
+	for (long long i = 0; i < steps; i++) {
+	    	double x = (i + 0.5) * step;
+	    	pi_serial += 4.0 / (1.0 + x * x);
+	}
+	pi_serial *= step;
+	double end_serial = omp_get_wtime();
+
+	// Parallel execution
+	double start_parallel = omp_get_wtime();
+	#pragma omp parallel
+	{
+		double sum = 0.0;
+		#pragma omp for
+		for (long long i = 0; i < steps; i++) {
+			double x = (i + 0.5) * step;
+			sum += 4.0 / (1.0 + x * x);
+		}
+		#pragma omp critical
+		pi_parallel += sum * step;
+	}
+	double end_parallel = omp_get_wtime();
+
+	cout << "Pi (Serial): " << pi_serial << "\n";
+	cout << "Serial Time: " << end_serial - start_serial << " seconds\n";
+
+	cout << "Pi (Parallel): " << pi_parallel << "\n";
+	cout << "Parallel Time: " << end_parallel - start_parallel << " seconds\n";
+
+	return 0;
+}
+
+/*
+Pi (Serial): 3.14159
+Serial Time: 5.66401 seconds
+Pi (Parallel): 3.14159
+Parallel Time: 0.325438 seconds
+*/
+
+/*4. */
+
+#include <iostream>
+#include <omp.h>
+#include <vector>
+using namespace std;
+
+vector<int> fib;
+bool ready = false;
+
+void generate_fib(int limit) {
+	fib.push_back(0), fib.push_back(1);
+	for (int i = 2; i < limit; i++)
+    	fib.push_back(fib[i - 1] + fib[i - 2]);
+	ready = true;
+}
+
+void print_fib() {
+	while (!ready);  //Busy-waits until ready becomes true, synchronization bw generation & printing processes.
+	cout << "Fibonacci: ";
+	for (int i : fib) cout << i << " "; cout << endl;
+}
+
+int main() {
+	int limit;
+	cout << "Limit: "; cin >> limit;
+
+	double start_serial = omp_get_wtime();
+	fib.clear();
+	generate_fib(limit);
+	print_fib();
+	double end_serial = omp_get_wtime();
+	cout << "Serial Time: " << end_serial - start_serial << " seconds\n";
+
+	double start_parallel = omp_get_wtime();
+	#pragma omp parallel
+	{
+    	#pragma omp single  //Ensures only a single thread executes this code block, while others wait.
+    	{
+        	fib.clear();
+        	generate_fib(limit);
+        	print_fib();
+    	}
+	}
+	double end_parallel = omp_get_wtime();
+	cout << "Parallel Time: " << end_parallel - start_parallel << " seconds\n";
+    
+	return 0;
+}
+
+/*
+Limit: 15
+Fibonacci: 0 1 1 2 3 5 8 13 21 34 55 89 144 233 377
+Serial Time: 4.7139e-05 seconds
+Fibonacci: 0 1 1 2 3 5 8 13 21 34 55 89 144 233 377
+Parallel Time: 0.00110327 seconds
+*/
+
+/*5 */
+
+/* 5. University awards gold medals to the student who has scored highest CGPA. WAPT TF the student with highest CGPA in a list of numbers using OpenMP.
+*/
+
+#include <iostream>
+#include <omp.h>
+#include <vector>
+using namespace std;
+
+int main() {
+	int num_students;
+	cout << "Enter number of students: ";
+	cin >> num_students;
+
+	vector<double> CGPA(num_students);
+	cout << "Enter the CGPAs of the students:\n";
+	for (double &cgpa : CGPA) cin >> cgpa;
+
+	double max_cgpa_serial = CGPA[0], max_cgpa_parallel = CGPA[0];
+
+	double start_serial = omp_get_wtime();
+	for (int i = 0; i < num_students; i++)
+    	if (CGPA[i] > max_cgpa_serial) max_cgpa_serial = CGPA[i];
+	double end_serial = omp_get_wtime();
+
+	double start_parallel = omp_get_wtime();
+	
+	#pragma omp parallel for shared(CGPA, max_cgpa_parallel)
+	for (int i = 0; i < num_students; i++) {
+    	#pragma omp critical
+    	{
+        	if (CGPA[i] > max_cgpa_parallel) max_cgpa_parallel = CGPA[i];
+    	}
+	}
+
+	// #pragma omp parallel for reduction(max: max_cgpa_p)
+        // for (int i=0; i<n; i++)
+        //     if(CGPA[i]>max_cgpa_p) max_cgpa_p=CGPA[i];
+	
+	double end_parallel = omp_get_wtime();
+
+	cout << "Highest CGPA (Serial): " << max_cgpa_serial << "\n";
+	cout << "Serial Time: " << end_serial - start_serial << " seconds\n";
+
+	cout << "Highest CGPA (Parallel): " << max_cgpa_parallel << "\n";
+	cout << "Parallel Time: " << end_parallel - start_parallel << " seconds\n";
+
+	return 0;
+}
+
+/*
+Enter number of students: 5
+Enter the CGPAs of the students:
+9.5
+8.6
+9.7
+9.3
+8.8
+Highest CGPA (Serial): 9.7
+Serial Time: 7.67e-07 seconds
+Highest CGPA (Parallel): 9.7
+Parallel Time: 0.000998799 seconds
+*/
+
+//_______________________________________________________________________________________________________
+
 /*10. */
 
 #include <iostream>
